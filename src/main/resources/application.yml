@@ -1,0 +1,10 @@
+# application.yml (기본 설정)
+spring:
+  profiles:
+    active: dev
+  application:
+    name: cicd_demo
+
+
+
+
