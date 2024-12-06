@@ -1,0 +1,11 @@
+# application-local.yml (테스트 환경)
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/test_db
+#    username: ${TEST_DB_USERNAME}
+#    password: ${TEST_DB_PASSWORD}
+
+
+temp:
+  test:
+    value: local-local

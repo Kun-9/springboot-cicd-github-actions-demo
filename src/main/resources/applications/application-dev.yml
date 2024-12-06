@@ -1,8 +1,0 @@
-# application-dev.yml (개발 환경)
-spring:
-  datasource:
-    url: ${DEV_DB_URL}
-    username: ${DEV_DB_USERNAME}
-    password: ${DEV_DB_PASSWORD}
-
-

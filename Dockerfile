@@ -1,17 +1,20 @@
 # 이미지 베이스 설정
-FROM openjdk:17
+FROM openjdk:17-jdk-slim
 
-# 서버 시간과 일치시키기 위서 tzdata 설치
-RUN apt-get update && apt-get install -y tzdata
+# 작업 디렉토리 설정
+WORKDIR /app
 
-# 타임존 서울 설정
-ENV TZ=Asia/Seoul
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# 환경변수로 프로필 설정
+ENV SPRING_PROFILES_ACTIVE=prod
 
 # Jar 파일 변수 설정
 ARG JAR_FILE=build/libs/*.jar
 
-# Jar 파일 Docker에 복사
-COPY ${JAR_FILE} cicd-demo-app.jar
+# Jar 파일 컨테이너 내부로 복사
+COPY ${JAR_FILE} app.jar
 
-ENTRYPOINT ["java","-jar","/app.jar"]
+# 포트 설정
+EXPOSE 8080
+
+# 애플리케이션 실행 (경로 수정)
+ENTRYPOINT ["java", "-jar", "app.jar"]
