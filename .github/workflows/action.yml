@@ -1,0 +1,83 @@
+name: Spring Boot CI Pipeline
+
+# 워크플로우가 실행될 조건 설정
+on:
+  push:
+    branches: [ "main" ]  # main 브랜치에 push될 때 실행
+
+# 환경 변수 설정
+env:
+  AWS_REGION: ap-northeast-2                      # AWS 리전
+  SSM_PARAMETER_NAME: /cicd-demo/application/prod # SSM 파라미터 스토어 경로
+
+# 작업 정의
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 실행 환경 지정
+
+    permissions:
+      id-token: write   # OIDC 인증을 위한 권한
+      contents: read    # 레포지토리 읽기 권한
+
+    steps:
+      # 1. 코드 체크아웃 / repository에서 소스를 참조하는 과정
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. JDK 17 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # 3. AWS 자격 증명 설정 (OIDC) / 위의 Permissions에서 'id-token: write' 권한 필요 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 4. SSM에서 시크릿 가져오기
+      # --with-decryption : SecureString 타입으로 저장된 암호화된 값을 복호화해서 가져옴
+      # --query 'Parameter.Value' : 응답에서 실제 파라미터 값만 추출
+      - name: Get secrets from AWS SSM
+        run: |
+          aws ssm get-parameter \
+            --name ${{ env.SSM_PARAMETER_NAME }} \
+            --with-decryption \
+            --query 'Parameter.Value' \
+            --output text > ./src/main/resources/application-prod.yml
+
+      # 5. Gradle 권한 설정
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 6. 프로젝트 빌드
+      - name: Build with Gradle
+        run: ./gradlew build -x test
+
+      # 7. 테스트 실행
+      - name: Run tests
+        run: ./gradlew test
+        
+      # 8. ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      # 9. Docker 이미지 빌드 및 푸시
+      - name: Build and Push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: my-spring-app    # ECR 레포지토리 이름
+          IMAGE_TAG: ${{ github.sha }}      # 커밋 해시를 태그로 사용
+        run: |
+          # Dockerfile이 있는 위치에서 이미지 빌드
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          
+          # ECR에 이미지 푸시
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
