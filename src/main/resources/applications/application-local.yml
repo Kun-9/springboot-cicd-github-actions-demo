@@ -1,4 +1,4 @@
-# application-test.yml (테스트 환경)
+# application-local.yml (테스트 환경)
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/test_db

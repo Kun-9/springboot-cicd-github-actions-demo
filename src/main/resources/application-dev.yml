@@ -1,8 +1,0 @@
-# application-dev.yml (개발 환경)
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/cicd_demo
-    username: cicd_user
-    password: 1234
-
-

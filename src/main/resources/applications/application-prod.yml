@@ -1,7 +1,7 @@
 # application-prod.yml (운영 환경)
 spring:
   datasource:
-    url: jdbc:postgresql://[운영DB URL]:5432/prod_db
+    url: ${PROD_DB_URL}
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
 

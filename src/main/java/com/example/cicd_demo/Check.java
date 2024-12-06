@@ -14,9 +14,7 @@ public class Check {
 
 	@PostConstruct
 	public void init() {
-		log.info("Check Environment : {}", environment.getActiveProfiles());
-		log.info("Check Environment : {}", environment.getProperty("spring.profiles.active"));
-		log.info("Check Environment : {}", environment.getProperty("spring.datasource.username"));
+		log.info("Check Current Environment : {}", environment.getProperty("spring.profiles.active"));
+		log.info("Check Current Environment DB-username : {}", environment.getProperty("spring.datasource.username"));
 	}
-
 }
