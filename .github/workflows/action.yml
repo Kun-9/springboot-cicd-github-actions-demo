@@ -3,7 +3,7 @@ name: Spring Boot CI Pipeline
 # 워크플로우가 실행될 조건 설정
 on:
   push:
-    # branches: [ "main" ]  # main 브랜치에 push될 때 실행
+    branches: [ "main" ]  # main 브랜치에 push될 때 실행
 
 # 환경 변수 설정
 env:
