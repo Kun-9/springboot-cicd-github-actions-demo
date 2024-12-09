@@ -12,6 +12,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest  # 실행 환경 지정
+    permissions:
+      id-token: write   # OIDC 인증을 위한 권한
+      contents: read    # 레포지토리 읽기 권한
     steps:
       # 1. 코드 체크아웃 / repository에서 소스를 참조하는 과정
       - name: Checkout code
@@ -35,12 +38,11 @@ jobs:
           EOF
           
 
-      # 3. AWS 자격 증명 설정 (IAM 엑세스 키 입력방식)
+      # 3. AWS 자격 증명 설정 (OIDC) / 위의 Permissions에서 'id-token: write' 권한 필요 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
       # 4. Gradle 권한 설정
