@@ -1,8 +1,8 @@
 # 빌드 스테이지
-FROM gradle:jdk17 AS build
+FROM gradle:7.6.1-jdk17 AS build
 WORKDIR /app
 
-COPY build.gradle settings.gradle . /
+COPY build.gradle.kts settings.gradle.kts ./
 # 소스코드 복사
 COPY src ./src
 
