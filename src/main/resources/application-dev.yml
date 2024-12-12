@@ -8,4 +8,4 @@
 
 temp:
   test:
-    value: local-dev
+    value: ${CURRENT_ENV}

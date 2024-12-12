@@ -7,4 +7,4 @@
 
 temp:
   test:
-    value: local-prod
+    value: ${CURRENT_ENV}

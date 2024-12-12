@@ -1,17 +1,22 @@
-# 이미지 베이스 설정
-FROM openjdk:17-jdk-slim
-
-# 작업 디렉토리 설정 (애플리케이션 파일이 위치할 곳)
+# 빌드 스테이지
+FROM gradle:7.6.1-jdk17 AS build
 WORKDIR /app
 
-# 환경변수로 프로필 설정 (프로덕션 환경 지정)
-ENV SPRING_PROFILES_ACTIVE=prod
+COPY build.gradle settings.gradle . /
+# 소스코드 복사
+COPY src ./src
 
-# Jar 파일 변수 설정 (Gradle 빌드 결과물 위치)
-ARG JAR_FILE=build/libs/*.jar
+# Workflow에서 환경변수 가져오기
+ARG CURRENT_ENV
+ENV CURRENT_ENV=$CURRENT_ENV
 
-# Jar 파일 컨테이너 내부로 복사
-COPY ${JAR_FILE} app.jar
+# 애플리케이션 빌드
+RUN gradle build -x test
 
-# 애플리케이션 실행 명령 설정
+# 실행 스테이지
+FROM openjdk:17-jre-slim
+WORKDIR /app
+# 빌드된 결과물만 가져오기
+COPY --from=build /app/build/libs/*.jar app.jar
+# 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
