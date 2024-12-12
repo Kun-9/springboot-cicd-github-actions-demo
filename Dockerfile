@@ -1,5 +1,5 @@
 # 빌드 스테이지
-FROM gradle:7.6.1-jdk17 AS build
+FROM gradle:jdk17 AS build
 WORKDIR /app
 
 COPY build.gradle settings.gradle . /
@@ -14,7 +14,7 @@ ENV CURRENT_ENV=$CURRENT_ENV
 RUN gradle build -x test
 
 # 실행 스테이지
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 # 빌드된 결과물만 가져오기
 COPY --from=build /app/build/libs/*.jar app.jar
