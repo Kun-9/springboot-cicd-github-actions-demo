@@ -7,4 +7,4 @@
 
 temp:
   test:
-    value: prod
+    value: ${CURRENT_ENV}
