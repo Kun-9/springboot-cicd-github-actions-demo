@@ -11,7 +11,9 @@ COPY src ./src
 
 # Workflow에서 환경변수 가져오기
 ARG CURRENT_ENV
-ENV CURRENT_ENV=$CURRENT_ENV
+#ENV CURRENT_ENV=$CURRENT_ENV
+
+ENV SPRING_PROFILES_ACTIVE=$CURRENT_ENV
 
 # gradlew 실행권한 부여
 RUN chmod +x ./gradlew
