@@ -1,7 +1,7 @@
 # application.yml (공통 설정)
 spring:
   profiles:
-    active: local
+    active: ${CURRENT_ENV}
   application:
     name: cicd_demo
 

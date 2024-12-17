@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eks-demo-ser-1
+  namespace: my-namespace-demo-1
+spec:
+  type: ClusterIP
+  ports:
+    - name: web             # deployment와 동일한 포트 이름
+      port: 8080
+      targetPort: web       # deployment의 포트 이름 참조
+  selector:
+    app: pod-demo

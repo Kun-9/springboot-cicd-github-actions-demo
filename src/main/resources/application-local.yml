@@ -8,4 +8,4 @@ spring:
 
 temp:
   test:
-    value: local-local
+    value: local
