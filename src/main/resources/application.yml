@@ -4,3 +4,18 @@ spring:
     active: local
   application:
     name: cicd_demo
+
+logging:
+  level:
+    root: DEBUG
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true  # 쿠버네티스 프로브 엔드포인트 활성화
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

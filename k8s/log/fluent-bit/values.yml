@@ -7,32 +7,48 @@ config:
   service: |
     [SERVICE]
         Parsers_File parsers.conf
-        # HTTP 서버 활성화 (health check용)
         HTTP_Server  On
         HTTP_Listen  0.0.0.0
         HTTP_Port    2020
+  # Parsers_File: 로그 파싱 규칙이 정의된 파일을 지정
+  # HTTP_Server: 헬스체크를 위한 HTTP 서버 기능 활성화
+  # HTTP_Listen: 모든 IP에서 접근 허용
+  # HTTP_Port: HTTP 서버 포트 지정
+
 
   # 로그 수집 설정
   inputs: |
     [INPUT]
-        Name              tail
-        Tag               kube.*
-        Path              /var/log/containers/*.log
-        Parser            docker
-        DB                /var/log/flb_kube.db
-        # 메모리 버퍼 설정 추가
-        storage.type      memory
-        Mem_Buf_Limit     5MB
+        Name                tail
+        Path               /var/log/containers/*.log
+        multiline.parser   docker, cri
+        Tag                kube.*
+        Mem_Buf_Limit      5MB
+        Skip_Long_Lines    On
+  # Name: tail 입력 플러그인 사용
+  # Path: 컨테이너 로그 파일 경로 지정
+  # multiline.parser: 도커와 CRI 형식의 멀티라인 로그 파싱
+  # Tag: 수집된 로그에 kube.* 태그 부여
+  # Mem_Buf_Limit: 메모리 버퍼 제한 설정
+  # Skip_Long_Lines: 긴 로그 라인 스킵 활성화
+
 
   # 쿠버네티스 메타데이터 필터 설정
   filters: |
     [FILTER]
-        Name                kubernetes
-        Match               kube.*
-        Merge_Log          On
-        Keep_Log           Off
-        K8S-Logging.Parser On
-        K8S-Logging.Exclude On
+        Name                  kubernetes
+        Match                 kube.*
+        Merge_Log             On
+        Keep_Log              On
+        K8S-Logging.Parser    On
+        K8S-Logging.Exclude   On
+  # Name: 쿠버네티스 메타데이터 필터 사용
+  # Match: kube.* 태그를 가진 로그에 적용
+  # Merge_Log: JSON 로그를 메시지 필드에 병합
+  # Keep_Log: 원본 로그 메시지 삭제
+  # K8S-Logging.Parser: 쿠버네티스 로깅 파서 활성화
+  # K8S-Logging.Exclude: 특정 로그 제외 기능 활성화
+
 
   # CloudWatch 출력 설정
   outputs: |
@@ -43,51 +59,58 @@ config:
         log_group_name      /aws/eks/my-cluster1/fluent-bit
         log_stream_prefix   -kube.var.log.containers.
         auto_create_group   true
-        # retry 설정 추가
         retry_limit         False
+  # Name: CloudWatch 출력 플러그인 사용
+  # Match: 모든 로그 매칭
+  # region: AWS 리전 설정
+  # log_group_name: CloudWatch 로그 그룹 이름
+  # log_stream_prefix: 로그 스트림 접두사
+  # auto_create_group: 로그 그룹 자동 생성
+  # retry_limit: 재시도 제한 없음
+
 
 # 리소스 제한 설정
 resources:
   limits:
-    memory: 128Mi
-    cpu: 100m
+    memory: 128Mi  # 최대 메모리 제한
+    cpu: 100m     # 최대 CPU 제한
   requests:
-    memory: 128Mi
-    cpu: 100m
+    memory: 128Mi  # 요청 메모리
+    cpu: 100m     # 요청 CPU
 
 # Health check 설정
 livenessProbe:
   httpGet:
-    path: /
-    port: 2020
-  initialDelaySeconds: 30  # 컨테이너 시작 후 30초 대기
-  periodSeconds: 10        # 10초마다 체크
-  timeoutSeconds: 5        # 5초 안에 응답이 없으면 실패
+    path: /            # 헬스체크 경로
+    port: 2020         # 헬스체크 포트
+  initialDelaySeconds: 30  # 초기 지연 시간
+  periodSeconds: 10        # 주기적 체크 간격
+  timeoutSeconds: 5        # 타임아웃 시간
 
 readinessProbe:
   httpGet:
-    path: /api/v1/health
-    port: 2020
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
+    path: /api/v1/health  # 레디니스 체크 경로
+    port: 2020            # 레디니스 체크 포트
+  initialDelaySeconds: 30  # 초기 지연 시간
+  periodSeconds: 10        # 체크 간격
+  timeoutSeconds: 5        # 타임아웃 설정
 
 # 추가 보안 설정
 tolerations:
-  - operator: "Exists"
+  - operator: "Exists"  # 모든 노드 허용 설정
 
-# 볼륨 마운트 설정 (기본값 사용)
+# 볼륨 마운트 설정
 volumes:
-  - name: varlog
+  - name: varlog  # 로그 볼륨
     hostPath:
       path: /var/log
-  - name: varlibdockercontainers
+  - name: varlibdockercontainers  # 도커 컨테이너 로그 볼륨
     hostPath:
       path: /var/lib/docker/containers
 
 volumeMounts:
-  - name: varlog
+  - name: varlog  # 로그 볼륨 마운트
     mountPath: /var/log
-  - name: varlibdockercontainers
+  - name: varlibdockercontainers  # 도커 로그 볼륨 마운트
     mountPath: /var/lib/docker/containers
-    readOnly: true
+    readOnly: true  # 읽기 전용 설정
