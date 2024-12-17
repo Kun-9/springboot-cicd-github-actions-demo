@@ -56,6 +56,7 @@ jobs:
           # 두 가지 태그로 이미지 빌드: 커밋 해시용, latest용  
           docker build \
           --build-arg CURRENT_ENV=$CURRENT_ENV \
+          --build-arg SPRING_PROFILES_ACTIVE=$CURRENT_ENV \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           
