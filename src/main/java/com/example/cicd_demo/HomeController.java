@@ -8,13 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class HomeController {
-
-
     private final Environment environment;
 
     @GetMapping("/")
     public String home() {
-
         StringBuilder sb = new StringBuilder();
 
         sb.append("Current Active : ").append(environment.getProperty("spring.profiles.active")).append("\n");
@@ -23,6 +20,3 @@ public class HomeController {
         return sb.toString();
     }
 }
-
-
-
