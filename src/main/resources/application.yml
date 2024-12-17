@@ -15,8 +15,12 @@ management:
       enabled: true # startup 엔드포인트 활성화
     health:
       show-details: always
+      show-components: always
       probes:
         enabled: true  # 쿠버네티스 프로브 엔드포인트 활성화
+      group:
+        startup:
+          include: "*"
   endpoints:
     web:
       exposure:
