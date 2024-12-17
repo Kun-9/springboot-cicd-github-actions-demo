@@ -19,8 +19,9 @@ public class HomeController {
         sb.append("Current Active : ").append(environment.getProperty("spring.profiles.active")).append("\n");
         sb.append("Current ENV : ").append(environment.getProperty("temp.test.value")).append("\n");
 
-        log.debug("position : HomeController");
-        log.debug("value: {}", sb.toString());
+        log.error("position : HomeController");
+        log.error("value: {}", sb.toString());
+
 
         return sb.toString();
     }
