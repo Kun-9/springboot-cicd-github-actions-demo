@@ -1,0 +1,9 @@
+# namespace-logging.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging
+  labels:
+    name: logging
+    monitoring: enabled    # 모니터링이 필요한 네임스페이스임을 표시
+    app.kubernetes.io/name: logging-namespace-1

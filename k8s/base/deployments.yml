@@ -20,3 +20,6 @@ spec:
             - name: web           # 포트 이름 추가
               containerPort: 8080
               protocol: TCP
+          env:
+            - name: CURRENT_ENV
+              value: "prod"

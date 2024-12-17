@@ -1,0 +1,32 @@
+serviceAccount:
+  create: false  # eksctl로 생성했으므로 false
+  name: fluent-bit
+
+config:
+  service: |
+    [SERVICE]
+        Parsers_File parsers.conf
+
+  inputs: |
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /var/log/flb_kube.db
+
+  filters: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Merge_Log          On
+        Keep_Log           Off
+
+  outputs: |
+    [OUTPUT]
+        Name                cloudwatch_logs
+        Match               *
+        region              ap-northeast-2
+        log_group_name      /aws/eks/my-cluster1/fluent-bit
+        log_stream_prefix   ${HOST_NAME}-
+        auto_create_group   true
