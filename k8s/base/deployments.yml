@@ -15,6 +15,7 @@ spec:
     spec:
       containers:
         - name: pod-container
+          imagePullPolicy: Always # 항상 이미지를 가져오기
           image: 867344463619.dkr.ecr.ap-northeast-2.amazonaws.com/github-actions-cicd-demo:latest
           ports:
             - name: web           # 포트 이름 추가
