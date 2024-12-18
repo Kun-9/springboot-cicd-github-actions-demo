@@ -5,6 +5,12 @@ spring:
   application:
     name: cicd_demo
 
+server:
+  tomcat:
+    apr:
+      enabled:false
+
+
 logging:
   level:
     root: DEBUG

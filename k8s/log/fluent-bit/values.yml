@@ -68,7 +68,6 @@ config:
   # auto_create_group: 로그 그룹 자동 생성
   # retry_limit: 재시도 제한 없음
 
-
 # 리소스 제한 설정
 resources:
   limits:
@@ -78,22 +77,6 @@ resources:
     memory: 128Mi  # 요청 메모리
     cpu: 100m     # 요청 CPU
 
-# Health check 설정
-livenessProbe:
-  httpGet:
-    path: /            # 헬스체크 경로
-    port: 2020         # 헬스체크 포트
-  initialDelaySeconds: 30  # 초기 지연 시간
-  periodSeconds: 10        # 주기적 체크 간격
-  timeoutSeconds: 5        # 타임아웃 시간
-
-readinessProbe:
-  httpGet:
-    path: /api/v1/health  # 레디니스 체크 경로
-    port: 2020            # 레디니스 체크 포트
-  initialDelaySeconds: 30  # 초기 지연 시간
-  periodSeconds: 10        # 체크 간격
-  timeoutSeconds: 5        # 타임아웃 설정
 
 # 추가 보안 설정
 tolerations:

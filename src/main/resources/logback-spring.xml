@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    주요 특징:
+    1. 콘솔과 파일 모두에 로깅
+    2. 로그 레벨별 색상 구분
+    3. 일별 로그 파일 롤링
+    4. 패키지별 세부 로그 레벨 설정
+-->
+<configuration>
+    <!--
+        Console Appender 설정
+        - 개발 환경에서의 즉각적인 피드백을 위한 콘솔 출력 담당
+        - 가독성을 위해 색상이 적용된 로그 출력
+
+        패턴 설명:
+        %d{yyyy-MM-dd HH:mm:ss.SSS} : 날짜/시간 (밀리초까지 표시)
+        %highlight(%-5level) : 로그 레벨을 색상으로 강조 (ERROR=빨강, WARN=노랑, INFO=파랑, DEBUG=초록)
+        [%thread] : 실행 중인 스레드 이름
+        %cyan(%logger{36}) : 로거 이름 (클래스명)을 청록색으로 표시 (최대 36자)
+        %msg%n : 실제 로그 메시지와 줄바꿈
+    -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!--
+        File Appender 설정
+        - 프로덕션 환경에서의 로그 영구 보관을 위한 파일 출력 담당
+        - 날짜별로 로그 파일이 생성되어 관리가 용이
+
+        주요 설정:
+        file : 현재 활성화된 로그 파일의 경로
+        rollingPolicy : 로그 파일 롤링 정책 설정
+        maxHistory : 로그 파일 보관 기간 (일 단위)
+        fileNamePattern : 롤링된 로그 파일의 이름 형식
+    -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application.log</file>
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+        애플리케이션 패키지별 로거 설정
+        - 특정 패키지의 로그 레벨을 세부적으로 조정
+
+        level 옵션 설명:
+        ERROR : 심각한 문제 발생 시 사용
+        WARN : 잠재적인 문제 상황 경고
+        INFO : 일반적인 정보성 메시지
+        DEBUG : 개발 시 상세한 정보 확인
+        TRACE : 가장 상세한 로그 레벨
+
+        additivity="false" : 상위 로거로의 로그 전파를 방지
+    -->
+    <logger name="com.example" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!--
+        프레임워크 로거 설정
+        - Spring, Hibernate 등 프레임워크의 로그 레벨 조정
+        - 기본적으로 INFO 레벨 사용 (필요한 정보만 출력)
+    -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+
+    <!--
+        무시하는 로그
+    -->
+    <logger name="org.apache.catalina.core.AprLifecycleListener" level="ERROR"/>
+
+    <!-- Tomcat 관련 로그 레벨 조정 -->
+    <logger name="org.apache.catalina" level="INFO"/>
+    <logger name="org.apache.tomcat" level="INFO"/>
+
+    <logger name="sun.rmi" level="INFO"/>
+    <logger name="javax.management" level="INFO"/>
+
+    <!--
+        Root Logger 설정
+        - 모든 패키지에 적용되는 기본 로그 설정
+        - 별도의 로거 설정이 없는 패키지는 이 설정을 따름
+        - INFO 레벨이 기본값으로 설정됨
+    -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
