@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
     private final Environment environment;
 
-    @GetMapping("/")
+    @GetMapping("/home")
     public String home() {
         StringBuilder sb = new StringBuilder();
 
