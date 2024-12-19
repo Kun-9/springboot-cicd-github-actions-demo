@@ -33,6 +33,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	//testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// 프로메테우스
+	implementation("io.micrometer:micrometer-registry-prometheus:1.14.2")
 }
 
 tasks.withType<Test> {

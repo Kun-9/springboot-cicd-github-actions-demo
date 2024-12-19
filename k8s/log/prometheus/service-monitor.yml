@@ -8,6 +8,7 @@ metadata:
 spec:
   selector:
     matchLabels:
+      app: eks-demo-ser-1
       release: prometheus           # Service의 레이블과 매칭
   namespaceSelector:
     matchNames:
