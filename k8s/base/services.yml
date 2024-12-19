@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: eks-demo-ser-1
   namespace: my-namespace-demo-1
+  labels:
+    app: eks-demo-ser-1
+    release: prometheus
 spec:
   type: ClusterIP
   ports:
