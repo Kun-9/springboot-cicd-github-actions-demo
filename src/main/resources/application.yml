@@ -15,28 +15,28 @@ logging:
     root: DEBUG
 
 management:
-  endpoint:
-    startup:
-      enabled: true # startup 엔드포인트 활성화
-    health:
-      show-details: always
-      show-components: always
-      probes:
-        enabled: true  # 쿠버네티스 프로브 엔드포인트 활성화
-      group:
-        startup:
-          include: "*"
   endpoints:
     web:
       exposure:
         include: '*'
       base-path: /actuator
+  endpoint:
+    startup:
+      enabled: true
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        startup:
+          include: "*"
+    prometheus:
+      enabled: true  # 프로메테우스 엔드포인트 활성화
   metrics:
     enable:
-      jvm: true         # 추가: JVM 메트릭 활성화
-      process: true     # 추가: 프로세스 메트릭 활성화
-      system: true      # 추가: 시스템 메트릭 활성화
-  prometheus:
-    metrics:
-      export:
-        enabled: true   # 추가: 프로메테우스 메트릭 익스포트 활성화
+      jvm: true
+      process: true
+      system: true
+    tags:
+      application: ${spring.application.name}  # 애플리케이션 이름을 태그로 추가
