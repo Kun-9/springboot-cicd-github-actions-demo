@@ -1,0 +1,10 @@
+# /base/kustomization.yml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 기본 리소스 정의
+resources:
+  - deployments.yml
+  - services.yml
+  - ingress.yml
+#  - network-policy.yml # 추후 고도화 시 설정

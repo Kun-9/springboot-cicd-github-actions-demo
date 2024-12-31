@@ -1,0 +1,31 @@
+# cwagentconfig.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cwagentconfig
+  namespace: amazon-cloudwatch
+data:
+  cwagentconfig.json: |
+    {
+      "agent": {
+        "region": "ap-northeast-2"
+      },
+      "metrics": {
+        "metrics_collected": {
+          "kubernetes": {
+            "cluster_name": "my-cluster1",
+            "metrics_collection_interval": 60,
+            "measurements": [
+              {"name": "node_cpu_usage_total", "unit": "Percent"},
+              {"name": "node_memory_working_set", "unit": "Bytes"},
+              {"name": "node_filesystem_utilization", "unit": "Percent"}
+            ],
+            "cluster_fields": [
+              {"name": "kubernetes.cluster.name", "rename": "ClusterName"},
+              {"name": "kubernetes.node.name", "rename": "NodeName"}
+            ]
+          }
+        },
+        "aggregation_dimensions": [["ClusterName"], ["ClusterName", "NodeName"]]
+      }
+    }

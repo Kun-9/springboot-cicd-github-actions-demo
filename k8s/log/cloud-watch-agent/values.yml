@@ -1,0 +1,15 @@
+# values.yaml 수정
+cloudWatchAgent:
+  config:
+    agent:
+      region: "ap-northeast-2"
+    metrics:
+      metrics_collected:
+        kubernetes:
+          cluster_name: "my-cluster1"
+          metrics_collection_interval: 60
+          enhanced_container_insights: true  # EMF 설정
+          cluster_metric_collection_interval: 60
+        containerinsights:
+          enabled: true
+          force_flush_interval: 5

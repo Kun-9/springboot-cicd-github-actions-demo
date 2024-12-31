@@ -1,29 +1,51 @@
+# /base/deployments.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eks-demo-app-1
-  namespace: my-namespace-demo-1
+  name: eks-demo
+  labels:
+    app: eks-demo
+    environment: base
 spec:
-  replicas: 1
+  # 기본적인 가용성을 위한 replica 설정
+  replicas: 2
+  # Pod 선택을 위한 라벨 매칭
   selector:
     matchLabels:
-      app: pod-demo
+      app: eks-demo
   template:
     metadata:
       labels:
-        app: pod-demo
+        app: eks-demo
     spec:
+      # Pod의 보안 컨텍스트 설정
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
       containers:
         - name: pod-container
-          imagePullPolicy: Always # 항상 이미지를 가져오기
           image: 867344463619.dkr.ecr.ap-northeast-2.amazonaws.com/github-actions-cicd-demo:latest
+          imagePullPolicy: Always
+          # 컨테이너 보안 컨텍스트 설정
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          # 리소스 제한 및 요청 설정
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
           ports:
-            - name: web           # 포트 이름 추가
+            - name: web
               containerPort: 8080
               protocol: TCP
-          env:
-            - name: CURRENT_ENV
-              value: "prod"
+          # 컨테이너 생존 여부 확인을 위한 프로브
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -32,7 +54,8 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-
+            successThreshold: 1
+          # 컨테이너 서비스 준비 상태 확인을 위한 프로브
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -41,11 +64,14 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-
+            successThreshold: 1
+          # 컨테이너 초기 시작 상태 확인을 위한 프로브
           startupProbe:
             httpGet:
               path: /actuator/health/startup
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 30
+            successThreshold: 1

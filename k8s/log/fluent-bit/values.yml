@@ -15,7 +15,6 @@ config:
   # HTTP_Listen: 모든 IP에서 접근 허용
   # HTTP_Port: HTTP 서버 포트 지정
 
-
   # 로그 수집 설정
   inputs: |
     [INPUT]
@@ -41,7 +40,7 @@ config:
         Merge_Log             On
         Keep_Log              On
         K8S-Logging.Parser    On
-        K8S-Logging.Exclude   On
+        K8S-Logging.Exclude   Off
   # Name: 쿠버네티스 메타데이터 필터 사용
   # Match: kube.* 태그를 가진 로그에 적용
   # Merge_Log: JSON 로그를 메시지 필드에 병합
@@ -53,13 +52,35 @@ config:
   # CloudWatch 출력 설정
   outputs: |
     [OUTPUT]
-        Name                cloudwatch_logs
-        Match               *
-        region              ap-northeast-2
-        log_group_name      /aws/eks/my-cluster1/fluent-bit
-        log_stream_prefix   -kube.var.log.containers.
-        auto_create_group   true
-        retry_limit         False
+        Name              cloudwatch_logs
+        Match             kube.*
+        region            ap-northeast-2
+        log_group_name    /aws/containerinsights/my-cluster1/application
+        log_stream_prefix ${kubernetes['namespace_name']}/${kubernetes['pod_name']}/
+        auto_create_group true
+        retry_limit       3
+    
+    [OUTPUT]
+        Name              cloudwatch_logs
+        Match             dataplane.*
+        region            ap-northeast-2
+        log_group_name    /aws/containerinsights/my-cluster1/performance
+        log_stream_prefix ${kubernetes['namespace_name']}/${kubernetes['pod_name']}/
+        auto_create_group true
+        retry_limit       3
+    
+    [OUTPUT]
+        Name              cloudwatch_logs
+        Match             host.*
+        region            ap-northeast-2
+        log_group_name    /aws/eks/my-cluster1/fluent-bit
+        log_stream_prefix ${kubernetes['namespace_name']}/${kubernetes['pod_name']}/
+        auto_create_group true
+        retry_limit       3
+
+
+
+
   # Name: CloudWatch 출력 플러그인 사용
   # Match: 모든 로그 매칭
   # region: AWS 리전 설정
@@ -97,3 +118,4 @@ volumeMounts:
   - name: varlibdockercontainers  # 도커 로그 볼륨 마운트
     mountPath: /var/lib/docker/containers
     readOnly: true  # 읽기 전용 설정
+

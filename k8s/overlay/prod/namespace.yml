@@ -1,0 +1,8 @@
+# overlays/prod/namespace.yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-prod
+  labels:
+    name: demo-prod
+    environment: production

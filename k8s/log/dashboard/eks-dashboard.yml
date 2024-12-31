@@ -16,55 +16,75 @@ Resources:
         {
           "widgets": [
             {
+              "height": 5,
+              "width": 6,
+              "y": 0,
+              "x": 0,
               "type": "metric",
-              "width": 12,
-              "height": 6,
               "properties": {
                 "metrics": [
-                  [ "DailyMetrics", "ErrorCount", { "label": "에러 로그 발생", "stat": "Sum" } ],
-                  [ ".", "SlowApiCount", { "label": "느린 API 응답(1초 이상)", "stat": "Sum" } ]
+                  [ "DailyMetrics", "ErrorCount", { "label": "에러 로그 발생", "region": "ap-northeast-2" } ],
+                  [ ".", "SlowApiCount", { "label": "느린 API 응답(1초 이상)", "region": "ap-northeast-2" } ]
                 ],
                 "view": "singleValue",
                 "region": "ap-northeast-2",
-                "title": "오늘의 주요지표",
-                "period": 86400
+                "title": "금일 주요지표",
+                "period": 60,
+                "stat": "Sum"
               }
             },
             {
-              "type": "log",
+              "height": 5,
               "width": 12,
-              "height": 6,
+              "y": 0,
+              "x": 12,
+              "type": "log",
               "properties": {
-                "query": "SOURCE '/aws/containerinsights/${ClusterName}/application' | filter @message like /(?i)(error|exception|fail)/ | stats count(*) as errorCount by bin(30s) as timestamp | display timestamp, errorCount | sort timestamp asc",
+                "query": "SOURCE '/aws/containerinsights/my-cluster1/application' | filter @message like /(?i)(error|exception|fail)/ | stats count(*) as errorCount by bin(30s) as timestamp | display timestamp, errorCount | sort timestamp asc",
                 "view": "bar",
                 "region": "ap-northeast-2",
                 "title": "Error Logs Count (30s intervals)",
-                "stacked": false,
-                "xAxis": { "show": true },
-                "yAxis": { "show": true }
+                "stacked": false
               }
             },
             {
-              "type": "metric",
-              "width": 8,
               "height": 6,
+              "width": 6,
+              "y": 5,
+              "x": 0,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "node_cpu_utilization", "ClusterName", "${ClusterName}" ]
+                  [{"expression": "SELECT AVG(node_cpu_utilization) FROM ContainerInsights GROUP BY NodeName", "region": "ap-northeast-2"}]
                 ],
                 "period": 300,
                 "stat": "Average",
                 "region": "ap-northeast-2",
-                "title": "Node CPU Utilization"
+                "title": "Node CPU Utilization",
+                "view": "timeSeries",
+                "stacked": false,
+                "yAxis": {
+                  "left": {
+                    "label": "CPU Usage (%)",
+                    "showUnits": true
+                  },
+                  "right": {
+                    "label": "",
+                    "showUnits": false
+                  }
+                },
+                "liveData": true
               }
             },
             {
-              "type": "metric",
-              "width": 8,
               "height": 6,
+              "width": 5,
+              "y": 5,
+              "x": 14,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "node_memory_utilization", "ClusterName", "${ClusterName}" ]
+                  [ "ContainerInsights", "node_memory_utilization", "ClusterName", "my-cluster1" ]
                 ],
                 "period": 300,
                 "stat": "Average",
@@ -73,12 +93,14 @@ Resources:
               }
             },
             {
-              "type": "metric",
-              "width": 8,
               "height": 6,
+              "width": 5,
+              "y": 5,
+              "x": 19,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", "${ClusterName}" ]
+                  [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", "my-cluster1" ]
                 ],
                 "period": 300,
                 "stat": "Average",
@@ -87,27 +109,50 @@ Resources:
               }
             },
             {
-              "type": "metric",
-              "width": 12,
               "height": 6,
+              "width": 8,
+              "y": 17,
+              "x": 10,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "pod_number_of_container_restarts", "ClusterName", "${ClusterName}" ],
-                  [ ".", "pod_number_of_running_containers", ".", "." ]
+                  [{"expression": "SELECT AVG(pod_status_running) FROM ContainerInsights WHERE ClusterName = 'my-cluster1' AND Namespace = 'my-namespace-demo-1' GROUP BY PodName", "region": "ap-northeast-2"}]
                 ],
-                "period": 300,
-                "stat": "Sum",
                 "region": "ap-northeast-2",
-                "title": "Pod Status"
+                "title": "Pod Status - running",
+                "period": 60,
+                "view": "timeSeries",
+                "stacked": false,
+                "stat": "Average"
               }
             },
             {
-              "type": "metric",
-              "width": 12,
               "height": 6,
+              "width": 6,
+              "y": 17,
+              "x": 18,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "cluster_node_count", "ClusterName", "${ClusterName}" ],
+                  [{"expression": "SELECT AVG(pod_number_of_container_restarts) FROM ContainerInsights WHERE ClusterName = 'my-cluster1' AND Namespace = 'my-namespace-demo-1' GROUP BY PodName", "region": "ap-northeast-2"}]
+                ],
+                "region": "ap-northeast-2",
+                "title": "Pod Status - restart",
+                "period": 60,
+                "view": "timeSeries",
+                "stacked": false,
+                "stat": "Average"
+              }
+            },
+            {
+              "height": 6,
+              "width": 4,
+              "y": 11,
+              "x": 6,
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  [ "ContainerInsights", "cluster_node_count", "ClusterName", "my-cluster1" ],
                   [ ".", "cluster_failed_node_count", ".", "." ]
                 ],
                 "period": 300,
@@ -117,17 +162,161 @@ Resources:
               }
             },
             {
-              "type": "metric",
-              "width": 12,
               "height": 6,
+              "width": 10,
+              "y": 17,
+              "x": 0,
+              "type": "metric",
               "properties": {
                 "metrics": [
-                  [ "ContainerInsights", "node_network_total_bytes", "ClusterName", "${ClusterName}" ]
+                  [ "ContainerInsights", "node_network_total_bytes", "ClusterName", "my-cluster1" ]
                 ],
                 "period": 300,
                 "stat": "Sum",
                 "region": "ap-northeast-2",
                 "title": "Network Total Bytes"
+              }
+            },
+            {
+              "height": 6,
+              "width": 6,
+              "y": 11,
+              "x": 0,
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  [ "AWS/EC2", "StatusCheckFailed", "InstanceId", "i-0b9db1a34933beb43", { "period": 1, "stat": "Sum" } ],
+                  [ "AWS/EC2", "StatusCheckFailed", "InstanceId", "i-03aff68f5fc119eee", { "period": 1, "stat": "Sum" } ]
+                ],
+                "legend": {
+                  "position": "bottom"
+                },
+                "region": "ap-northeast-2",
+                "liveData": false,
+                "period": 1,
+                "timezone": "LOCAL",
+                "title": "StatusCheckFailed",
+                "view": "timeSeries",
+                "stacked": false
+              }
+            },
+            {
+              "height": 6,
+              "width": 14,
+              "y": 11,
+              "x": 10,
+              "type": "metric",
+              "properties": {
+                "region": "ap-northeast-2",
+                "title": "Top 포드 per CPU 사용률",
+                "legend": {
+                  "position": "right"
+                },
+                "timezone": "LOCAL",
+                "metrics": [
+                  [{"expression": "SELECT MAX(pod_cpu_utilization) FROM SCHEMA(ContainerInsights, ClusterName, FullPodName, Namespace, PodName)  GROUP BY FullPodName,PodName,Namespace,ClusterName ORDER BY MAX() DESC LIMIT 10"}]
+                ],
+                "liveData": false,
+                "period": 60,
+                "yAxis": {
+                  "left": {
+                    "min": 0,
+                    "showUnits": false,
+                    "label": "Percent"
+                  }
+                },
+                "view": "timeSeries",
+                "stacked": false
+              }
+            },
+            {
+              "height": 5,
+              "width": 6,
+              "y": 0,
+              "x": 6,
+              "type": "metric",
+              "properties": {
+                "region": "ap-northeast-2",
+                "title": "노드 상태",
+                "legend": {
+                  "position": "right"
+                },
+                "timezone": "LOCAL",
+                "metrics": [
+                  [{ "id": "ready_nodes_avgm0", "label": "Ready Nodes (avg)", "color": "#2ca02c", "expression": "IF(PERIOD(ready_nodesm0)>=60, ready_nodesm0/(PERIOD(ready_nodesm0)/60), ready_nodesm0)", "accountId": "867344463619" }],
+                  [{ "id": "m0m0", "label": "Not Ready Nodes (avg)", "color": "#ff7f0e", "expression": "IF(total_nodes_avgm0-ready_nodes_avgm0 >=0, total_nodes_avgm0-ready_nodes_avgm0, 0)", "accountId": "867344463619" }],
+                  [{ "id": "total_nodes_avgm0", "color": "#ff7f0e", "expression": "IF(PERIOD(total_nodesm0)>=60, total_nodesm0/(PERIOD(total_nodesm0)/60), total_nodesm0)", "visible": false, "label": "867344463619,my-cluster1", "accountId": "867344463619" }],
+                  [ "ContainerInsights", "node_status_condition_ready", "ClusterName", "my-cluster1", { "id": "ready_nodesm0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "cluster_node_count", "ClusterName", "my-cluster1", { "id": "total_nodesm0", "label": "Sum", "stat": "Sum", "visible": false, "accountId": "867344463619" }]
+                ],
+                "liveData": false,
+                "period": 60,
+                "view": "singleValue"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 10,
+              "y": 5,
+              "width": 4,
+              "height": 6,
+              "properties": {
+                "region": "ap-northeast-2",
+                "title": "### 포드 상태",
+                "legend": {
+                  "position": "bottom"
+                },
+                "timezone": "LOCAL",
+                "metrics": [
+                  [{ "expression": "IF(PERIOD(m1m0)>=60, m1m0/(PERIOD(m1m0)/60), m1m0)", "label": "pod_status_initialized", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m2m0)>=60, m2m0/(PERIOD(m2m0)/60), m2m0)", "label": "pod_status_pending", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m3m0)>=60, m3m0/(PERIOD(m3m0)/60), m3m0)", "label": "pod_status_succeeded", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m4m0)>=60, m4m0/(PERIOD(m4m0)/60), m4m0)", "label": "pod_status_failed", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m5m0)>=60, m5m0/(PERIOD(m5m0)/60), m5m0)", "label": "pod_status_running", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m6m0)>=60, m6m0/(PERIOD(m6m0)/60), m6m0)", "label": "pod_status_ready", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m7m0)>=60, m7m0/(PERIOD(m7m0)/60), m7m0)", "label": "pod_status_scheduled", "accountId": "867344463619" }],
+                  [{ "expression": "IF(PERIOD(m8m0)>=60, m8m0/(PERIOD(m8m0)/60), m8m0)", "label": "pod_status_unknown", "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_initialized", "ClusterName", "my-cluster1", { "id": "m1m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_pending", "ClusterName", "my-cluster1", { "id": "m2m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_succeeded", "ClusterName", "my-cluster1", { "id": "m3m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_failed", "ClusterName", "my-cluster1", { "id": "m4m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_running", "ClusterName", "my-cluster1", { "id": "m5m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_ready", "ClusterName", "my-cluster1", { "id": "m6m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_scheduled", "ClusterName", "my-cluster1", { "id": "m7m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }],
+                  [ "ContainerInsights", "pod_status_unknown", "ClusterName", "my-cluster1", { "id": "m8m0", "stat": "Sum", "visible": false, "accountId": "867344463619" }]
+                ],
+                "liveData": false,
+                "period": 60,
+                "yAxis": {
+                  "left": {
+                    "label": "Count",
+                    "showUnits": false
+                  }
+                },
+                "view": "timeSeries",
+                "stacked": false
+              }
+            },
+            {
+              "type": "metric",
+              "x": 6,
+              "y": 5,
+              "width": 4,
+              "height": 6,
+              "properties": {
+                "region": "ap-northeast-2",
+                "title": "노드 CPU 사용률",
+                "legend": {
+                  "position": "bottom"
+                },
+                "timezone": "LOCAL",
+                "metrics": [
+                  [ "ContainerInsights", "node_cpu_utilization", "ClusterName", "my-cluster1", { "id": "expr1m0", "label": "Maximum", "color": "#1f77b4", "stat": "Maximum", "accountId": "867344463619" }]
+                ],
+                "liveData": false,
+                "period": 60,
+                "view": "singleValue",
+                "sparkline": true
               }
             }
           ]

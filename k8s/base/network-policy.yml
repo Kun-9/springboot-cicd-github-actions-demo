@@ -1,0 +1,36 @@
+# /base/network-policy.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: eks-demo-network-policy
+  labels:
+    app: eks-demo
+spec:
+  # 네트워크 정책을 적용할 Pod 선택
+  podSelector:
+    matchLabels:
+      app: eks-demo
+  policyTypes:
+    - Ingress
+    - Egress
+  # 인바운드 트래픽 규칙
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+  # 아웃바운드 트래픽 규칙
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

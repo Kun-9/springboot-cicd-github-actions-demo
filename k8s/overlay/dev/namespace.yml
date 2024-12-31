@@ -1,0 +1,8 @@
+# overlays/dev/namespace.yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-dev
+  labels:
+    name: demo-dev
+    environment: development

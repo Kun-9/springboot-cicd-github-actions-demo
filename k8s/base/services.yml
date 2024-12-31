@@ -1,16 +1,19 @@
+# /base/services.yml
 apiVersion: v1
 kind: Service
 metadata:
-  name: eks-demo-ser-1
-  namespace: my-namespace-demo-1
+  name: eks-demo-service
   labels:
-    app: eks-demo-ser-1
+    app: eks-demo
     release: prometheus
 spec:
+  # 서비스 타입 명시적 지정
   type: ClusterIP
-  ports:
-    - name: web             # deployment와 동일한 포트 이름
-      port: 8080
-      targetPort: web       # deployment의 포트 이름 참조
+  # Pod 선택을 위한 라벨 매칭
   selector:
-    app: pod-demo
+    app: eks-demo
+  ports:
+    - name: web
+      port: 8080
+      targetPort: web
+      protocol: TCP

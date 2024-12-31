@@ -1,0 +1,27 @@
+# overlays/dev/kustomization.yml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 개발 환경 네임스페이스 설정
+namespace: demo-dev
+
+# 기본 리소스 및 추가 리소스 정의
+resources:
+  - ../../base
+  - namespace.yml
+
+# 개발 환경 패치 적용
+patches:
+  # Deployment 패치
+  - path: deployment-patch.yml
+    target:
+      kind: Deployment
+      name: eks-demo
+  # Ingress 패치
+  - patch: |-
+      - op: replace
+        path: /metadata/annotations/alb.ingress.kubernetes.io~1healthcheck-path
+        value: /actuator/health
+    target:
+      kind: Ingress
+      name: eks-demo-ingress
