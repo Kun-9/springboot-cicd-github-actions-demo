@@ -19,6 +19,7 @@ public class HomeController {
         sb.append("Current Active : ").append(environment.getProperty("spring.profiles.active")).append("\n");
         sb.append("Current ENV : ").append(environment.getProperty("temp.test.value")).append("\n");
 
+        log.info("Home 접속");
         log.debug("디버그 메시지");
         log.info("정보 메시지");
         log.warn("경고 메시지");

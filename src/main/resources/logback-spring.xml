@@ -52,6 +52,11 @@
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.hibernate" level="INFO"/>
 
+    <!-- 애플리케이션 패키지 로거 -->
+    <logger name="com.example.cicd_demo" level="DEBUG" additivity="true">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
     <!--
         무시하는 로그
     -->
