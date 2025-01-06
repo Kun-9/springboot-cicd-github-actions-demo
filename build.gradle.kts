@@ -36,6 +36,18 @@ dependencies {
 
 	// 프로메테우스
 	implementation("io.micrometer:micrometer-registry-prometheus:1.14.2")
+
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/secretsmanager
+	implementation("software.amazon.awssdk:secretsmanager:2.29.43")
+
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/kms
+	implementation("software.amazon.awssdk:kms:2.29.43")
+
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/aws-core
+	implementation("software.amazon.awssdk:aws-core:2.29.45")
+
+	// https://mvnrepository.com/artifact/com.amazonaws/aws-encryption-sdk-java
+	implementation("com.amazonaws:aws-encryption-sdk-java:3.0.1")
 }
 
 tasks.withType<Test> {
